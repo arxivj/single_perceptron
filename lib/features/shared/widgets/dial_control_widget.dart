@@ -10,12 +10,15 @@ class DialControlWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
         if (label != null)
-          Text(
-            label!,
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700]),
+          Positioned(
+            left: 24.0,
+            child: Text(
+              label!,
+              style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold, color: Colors.grey[500]),
+            ),
           ),
         Slider(
           value: dial.value.toDouble(),

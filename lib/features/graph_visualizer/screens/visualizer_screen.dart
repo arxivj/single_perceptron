@@ -59,7 +59,7 @@ class _VisualizerScreenState extends State<VisualizerScreen> {
                       inputs: inputs,
                       bias: perceptron.bias.value,
                       net: perceptron.netInput,
-                      symbolicFormula: 'net = (w₁ × x₁) + (w₂ × x₂) + b',
+                      symbolicFormula: 'net = (w₁ × x₁) + (w₂ × x₂) + bias',
                     ),
                   ],
                 ),
@@ -73,15 +73,14 @@ class _VisualizerScreenState extends State<VisualizerScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: Column(
                       children: [
-                        // Text('Input 1 (x₁)', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700])),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: LedControlWidget(led: perceptron[0].led, onChanged: _updateState),
+                          child: LedControlWidget(led: perceptron[0].led, onChanged: _updateState, label: 'x₁'),
                         ),
                         DialControlWidget(
                           dial: perceptron[0].dial,
                           onChanged: _updateState,
-                          // label: 'Weight (w₁)',
+                          label: 'w₁',
                         ),
                       ],
                     ),
@@ -93,15 +92,14 @@ class _VisualizerScreenState extends State<VisualizerScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: Column(
                       children: [
-                        // Text('Input 2 (x₂)', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[700])),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: LedControlWidget(led: perceptron[1].led, onChanged: _updateState),
+                          child: LedControlWidget(led: perceptron[1].led, onChanged: _updateState, label: 'x₂'),
                         ),
                         DialControlWidget(
                           dial: perceptron[1].dial,
                           onChanged: _updateState,
-                          // label: 'Weight (w₂)',
+                          label: 'w₂',
                         ),
                       ],
                     ),
@@ -115,7 +113,7 @@ class _VisualizerScreenState extends State<VisualizerScreen> {
               child: DialControlWidget(
                 dial: perceptron.bias,
                 onChanged: _updateState,
-                // label: 'Bias (b)',
+                label: 'bias',
               ),
             ),
           ],
