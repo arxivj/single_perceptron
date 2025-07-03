@@ -32,8 +32,8 @@ class Perceptron {
   void reset() => _initialize();
 
   void _initialize() {
-    _inputs = List.generate(inputSize, (_) => LedSwitch(), growable: false);
-    _weights = List.generate(inputSize, (_) => Dial(), growable: false);
+    _inputs = List.generate(inputSize, (_) => LedSwitch());
+    _weights = List.generate(inputSize, (_) => Dial());
     bias = Dial();
   }
 

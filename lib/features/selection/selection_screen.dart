@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:single_perceptron/features/graph_visualizer/screens/visualizer_screen.dart';
+import 'package:single_perceptron/features/pattern_recognition/screens/pattern_recognition_screen.dart';
 import 'package:single_perceptron/features/selection/widgets/nav_card.dart';
 
 class SelectionScreen extends StatelessWidget {
@@ -19,6 +20,16 @@ class SelectionScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const VisualizerScreen()),
+              );
+            },
+          ),
+          NavCard(
+            title: '패턴 인식',
+            subtitle: '16개의 입력으로 패턴을 학습하는 과정을 시뮬레이션',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PatternRecognitionScreen()),
               );
             },
           ),
