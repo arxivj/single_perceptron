@@ -20,16 +20,22 @@ class Perceptron {
 
   PerceptronItem operator [](int index) {
     if (index < 0 || index >= inputSize) {
-      throw RangeError('Index out of range: $index');
+      throw RangeError('인덱스 범위를 벗어났습니다: $index');
     }
     return PerceptronItem(_inputs[index], _weights[index]);
   }
 
-  int get netInput => _calculateNetInput();
+  List<Dial> get weights => _weights;
+
+  int get netInput => _calculateNetInput(_inputs.map((e) => e.isOn).toList());
 
   int predict() => _activation(netInput);
 
   void reset() => _initialize();
+
+  int calculateNetInputForPattern(List<bool> ledStates) {
+    return _calculateNetInput(ledStates);
+  }
 
   void _initialize() {
     _inputs = List.generate(inputSize, (_) => LedSwitch());
@@ -37,10 +43,11 @@ class Perceptron {
     bias = Dial();
   }
 
-  int _calculateNetInput() {
+  int _calculateNetInput(List<bool> ledStates) {
     int sum = 0;
     for (int i = 0; i < inputSize; i++) {
-      sum += _inputs[i].value * _weights[i].value;
+      final inputValue = ledStates[i] ? 1 : -1;
+      sum += inputValue * _weights[i].value;
     }
     sum += bias.value;
     return sum;

@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:single_perceptron/features/pattern_recognition/widgets/learned_pattern_card.dart';
 import 'package:single_perceptron/features/pattern_recognition/widgets/learning_target_selector.dart';
 import 'package:single_perceptron/features/shared/widgets/led_control_widget.dart';
 import 'package:single_perceptron/features/shared/widgets/neu_container.dart';
+import 'package:single_perceptron/models/learned_pattern.dart';
 import 'package:single_perceptron/models/perceptron.dart';
-
-enum LearningTarget { positive, negative }
-
-class _LearnedPattern {
-  final List<bool> ledStates;
-
-  _LearnedPattern({required this.ledStates});
-}
 
 class PatternRecognitionScreen extends StatefulWidget {
   const PatternRecognitionScreen({super.key});
@@ -20,9 +14,12 @@ class PatternRecognitionScreen extends StatefulWidget {
 }
 
 class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
-  final perceptron = Perceptron(inputSize: 16);
+  static const int _gridDimension = 4;
+  static const int _perceptronInputSize = _gridDimension * _gridDimension;
+
+  final perceptron = Perceptron(inputSize: _perceptronInputSize);
   LearningTarget _learningTarget = LearningTarget.positive;
-  final List<_LearnedPattern> _learnedPatterns = [];
+  final List<LearnedPattern> _learnedPatterns = [];
 
   void _updateState() {
     setState(() {});
@@ -37,7 +34,7 @@ class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
     _updateState();
   }
 
-  void _saveCurrentPattern(int netInput) {
+  void _saveCurrentPattern() {
     final List<bool> currentLedStates = List.generate(
       perceptron.inputSize,
       (index) => perceptron[index].led.isOn,
@@ -53,28 +50,25 @@ class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
     });
 
     if (!patternExists) {
-      _learnedPatterns.add(_LearnedPattern(ledStates: currentLedStates));
+      _learnedPatterns.add(LearnedPattern(ledStates: currentLedStates, target: _learningTarget));
     }
   }
 
-  void _loadPattern(_LearnedPattern pattern) {
+  void _loadPattern(LearnedPattern pattern) {
     for (int i = 0; i < perceptron.inputSize; i++) {
       if (perceptron[i].led.isOn != pattern.ledStates[i]) {
         perceptron[i].led.toggle();
       }
     }
-    _updateState();
+    setState(() {
+      _learningTarget = pattern.target;
+    });
   }
 
   void _learn() {
-    try {
-      final netInput = perceptron.netInput;
-      _saveCurrentPattern(netInput);
-      _learningAlgorithm();
-    } finally {
-      _resetAllLeds();
-      // _updateState();
-    }
+    _saveCurrentPattern();
+    _learningAlgorithm();
+    _resetAllLeds();
   }
 
   void _learningAlgorithm() {
@@ -101,6 +95,8 @@ class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
         break;
     }
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -136,28 +132,34 @@ class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(8.0),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
-              itemCount: 16,
+              gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _gridDimension),
+              itemCount: _perceptronInputSize,
               itemBuilder: (context, index) {
                 return LedControlWidget(led: perceptron[index].led, onChanged: _updateState);
               },
             ),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
                   Expanded(
                     child: LearningTargetSelector<LearningTarget>(
-                      initialSelection: _learningTarget,
+                      selection: _learningTarget,
                       onSelectionChanged: (newSelection) {
                         setState(() {
                           _learningTarget = newSelection;
                         });
                       },
                       segments: const [
-                        ButtonSegment(value: LearningTarget.positive, label: Text('Positive Target')),
-                        ButtonSegment(value: LearningTarget.negative, label: Text('Negative Target')),
+                        ButtonSegment(
+                          value: LearningTarget.positive,
+                          label: Text('Positive Target'),
+                        ),
+                        ButtonSegment(
+                          value: LearningTarget.negative,
+                          label: Text('Negative Target'),
+                        ),
                       ],
                     ),
                   ),
@@ -172,7 +174,8 @@ class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
                   NeuContainer(
                     child: IconButton(
                       onPressed: _resetAllLeds,
-                      icon: const Icon(Icons.lightbulb_outline_rounded, size: 24.0),
+                      icon: const Icon(Icons.refresh, size: 24.0),
+                      tooltip: 'Reset all LEDs',
                       padding: const EdgeInsets.all(16.0),
                       style: IconButton.styleFrom(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
@@ -188,21 +191,33 @@ class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                         ),
-                        child: Text('Learn', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: Colors.grey.shade700)),
+                        child: Text(
+                          'Learn',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18.0,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 24.0),
+            const SizedBox(height: 24.0),
             Row(
               children: [
                 Expanded(
                   child: SizedBox(
-                    height: 80,
+                    height: 140.0,
                     child: _learnedPatterns.isEmpty
-                        ? Center(child: Text('No patterns learned yet.', style: TextStyle(color: Colors.grey.shade600)))
+                        ? Center(
+                            child: Text(
+                              'No patterns learned yet.',
+                              style: TextStyle(color: Colors.grey.shade600),
+                            ),
+                          )
                         : ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             scrollDirection: Axis.horizontal,
@@ -210,42 +225,12 @@ class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
                             itemCount: _learnedPatterns.length,
                             itemBuilder: (context, index) {
                               final pattern = _learnedPatterns[index];
+                              final netInput = perceptron.calculateNetInputForPattern(pattern.ledStates);
 
-                              return TextButton(
+                              return LearnedPatternCard(
+                                pattern: pattern,
+                                netInput: netInput,
                                 onPressed: () => _loadPattern(pattern),
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                    vertical: 8.0,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                ),
-                                child: SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: GridView.builder(
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4,
-                                      mainAxisSpacing: 4,
-                                      crossAxisSpacing: 4,
-                                    ),
-                                    itemCount: pattern.ledStates.length,
-                                    itemBuilder: (context, ledIndex) {
-                                      return Icon(
-                                        pattern.ledStates[ledIndex]
-                                            ? Icons.circle
-                                            : Icons.circle_outlined,
-                                        color: pattern.ledStates[ledIndex]
-                                            ? Colors.red.shade200
-                                            : Colors.grey,
-                                        size: 14.0,
-                                      );
-                                    },
-                                  ),
-                                ),
                               );
                             },
                           ),
@@ -259,3 +244,4 @@ class _PatternRecognitionScreenState extends State<PatternRecognitionScreen> {
     );
   }
 }
+
