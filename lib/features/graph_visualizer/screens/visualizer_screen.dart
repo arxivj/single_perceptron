@@ -28,7 +28,7 @@ class _VisualizerScreenState extends State<VisualizerScreen> {
     final List<int> inputs = List.generate(perceptron.inputSize, (i) => perceptron[i].led.value);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('그래프 시각화')),
+      appBar: AppBar(title: const Text('결정 경계 시각화')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

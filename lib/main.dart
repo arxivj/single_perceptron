@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey[300],
         useMaterial3: true,
         brightness: Brightness.light,
+        fontFamily: 'Pretendard',
         colorScheme: ColorScheme.light(
           primary: Colors.grey.shade800,
           secondary: Colors.grey.shade600,

@@ -99,7 +99,7 @@ class PerceptronGraph extends CustomPainter {
       bool isCurrentPoint = (point == selectedPoint);
       double radius = isCurrentPoint ? selectedPointRadius : defaultPointRadius;
 
-      final pointPaint = Paint()..color = result >= 0 ? Colors.red : Colors.blue;
+      final pointPaint = Paint()..color = result >= 0 ? Colors.green : Colors.red;
       canvas.drawCircle(Offset(toScreenX(point.x), toScreenY(point.y)), radius, pointPaint);
       if (isCurrentPoint) {
         final borderPaint = Paint()
