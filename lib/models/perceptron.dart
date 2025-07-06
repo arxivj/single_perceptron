@@ -25,13 +25,23 @@ class Perceptron {
     return PerceptronItem(_inputs[index], _weights[index]);
   }
 
+  List<LedSwitch> get inputs => _inputs;
+
   List<Dial> get weights => _weights;
 
   int get netInput => _calculateNetInput(_inputs.map((e) => e.isOn).toList());
 
   int predict() => _activation(netInput);
 
-  void reset() => _initialize();
+  void reset() {
+    for(final input in _inputs) {
+      input.reset();
+    }
+    for(final weight in _weights) {
+      weight.reset();
+    }
+    bias.reset();
+  }
 
   int calculateNetInputForPattern(List<bool> ledStates) {
     return _calculateNetInput(ledStates);

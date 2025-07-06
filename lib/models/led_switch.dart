@@ -1,5 +1,7 @@
 class LedSwitch {
-  bool _isOn = false;
+  static const bool initialIsOn = false;
+
+  bool _isOn = initialIsOn;
 
   LedSwitch();
 
@@ -9,5 +11,9 @@ class LedSwitch {
 
   void toggle() {
     _isOn = !_isOn;
+  }
+
+  void reset() {
+    _isOn = initialIsOn;
   }
 }

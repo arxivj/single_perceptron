@@ -1,5 +1,7 @@
 class Dial {
-  int _value = 0;
+  static final int initialValue = 0;
+
+  int _value = initialValue;
 
   Dial();
 
@@ -13,5 +15,9 @@ class Dial {
 
   void decrement() {
     _value = (_value - 10).clamp(-50, 50);
+  }
+
+  void reset() {
+    _value = initialValue;
   }
 }
